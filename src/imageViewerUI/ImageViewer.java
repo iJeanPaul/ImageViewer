@@ -1,14 +1,9 @@
 package imageViewerUI;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.awt.List;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -17,18 +12,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 
 public class ImageViewer extends JFrame {
-
-	private JPanel contentPane;
+	private JFrame mainframe;
+	File[] imagefiles;
 
 	/**
 	 * Launch the application.
@@ -50,9 +41,14 @@ public class ImageViewer extends JFrame {
 	 * Create the frame.
 	 */
 	public ImageViewer() {
+		
+		mainframe = this;
+		imagefiles = null;
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("JP - Image Viewer");
-		setBounds(100, 50, 1000, 650);
+		setBounds(150, 50, 1000, 650);
+		setResizable(false);
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -91,7 +87,6 @@ public class ImageViewer extends JFrame {
 			        
 			        // Get images files: if no folder is selected, get images files from the current directory
 			        // otherwise, get files from inside the selected folder
-			        // TODO: revisit this, there is a bug!!!!
 			
 			        String folder_path;
 			        if (fileopen.getSelectedFile() != null && fileopen.getSelectedFile().exists())
@@ -119,14 +114,20 @@ public class ImageViewer extends JFrame {
 			               return false;
 			            }
 			        };		        
-			        File[] files = new File (folder_path).listFiles(fileNameFilter);
+			        
+			        imagefiles = new File (folder_path).listFiles(fileNameFilter);
 			        System.out.println("\nLoaded files");
 			        System.out.println("------------");
-			        for (File f : files ){
-			        	System.out.println(f);
+			        for (File f : imagefiles ){
+			        	System.out.println(f.toString());
 			        }
 			        
-			        // TODO: at this point we need to reload the JPane so that it gets updated images
+			        // at this point we need to reload the JPane so that it gets updated images
+			        
+			        getContentPane().removeAll();
+			        ViewContentJPanel viewContentJPanel = new ViewContentJPanel(mainframe, imagefiles);
+					getContentPane().add(viewContentJPanel);
+					getContentPane().revalidate();
 			    }
 			    else {
 			    	System.out.println ("No selection!");
@@ -134,10 +135,11 @@ public class ImageViewer extends JFrame {
 			}
 		});
 		mnImport.add(mntmImages);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new BorderLayout(0, 0));
-		setContentPane(contentPane);
+	
+		getContentPane().removeAll();
+        ViewContentJPanel viewContentJPanel = new ViewContentJPanel(mainframe, imagefiles);
+        viewContentJPanel.setFocusable(true);
+		getContentPane().add(viewContentJPanel);
+		getContentPane().revalidate();
 	}
-
 }
